@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028334, g: 0.22571337, b: 0.3069219, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028334, g: 0.22571328, b: 0.3069217, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -616,7 +616,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   orientation: {fileID: 282833019}
   speed: 6
-  jumpSpeed: 8
   gravity: 0
   groundDrag: 1
   horizontalInput: 1
@@ -625,10 +624,13 @@ MonoBehaviour:
   readyToJump: 1
   jumpCooldown: 0
   jumpForce: 0
+  extraJump: 0
   onGround: 1
+  onWall: 0
   whatIsGround:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 0
+  distToGround: 0
 --- !u!65 &1976935077
 BoxCollider:
   m_ObjectHideFlags: 0

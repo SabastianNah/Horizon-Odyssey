@@ -10,7 +10,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 respawnPoint;
 
     public Transform orientation;
-    
+
     public float speed = 6.0f;
     public float gravity = 20.0f;
     public float groundDrag;
@@ -25,6 +25,7 @@ public class PlayerMovement : MonoBehaviour
     public bool extraJump;
 
     public bool onGround;
+    public bool onWall;
     public LayerMask whatIsGround;
     public float distToGround;
 
@@ -33,7 +34,7 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         //get and store player rigidbody
-        rb = GetComponent <Rigidbody>();
+        rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
         //make player's current position be where they respawn on start
         respawnPoint = new Vector3(transform.position.x, transform.position.y, transform.position.z);
@@ -47,7 +48,7 @@ public class PlayerMovement : MonoBehaviour
     private void Update()
     {
         // ground check
-        onGround = Physics.Raycast(transform.position, Vector3.down, distToGround + 0.1f);
+        onGround = Physics.Raycast(transform.position, Vector3.down, distToGround + 0.5f);
 
         MyInput();
         SpeedControl();
@@ -69,7 +70,7 @@ public class PlayerMovement : MonoBehaviour
         Vector3 flatVel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
 
         // limit velocity if needed
-        if(flatVel.magnitude > speed)
+        if (flatVel.magnitude > speed)
         {
             Vector3 limitedVel = flatVel.normalized * speed;
             rb.velocity = new Vector3(limitedVel.x, rb.velocity.y, limitedVel.z);
@@ -82,16 +83,21 @@ public class PlayerMovement : MonoBehaviour
         verticalInput = Input.GetAxisRaw("Vertical");
 
         // when to jump
-        if(Input.GetKey(jumpKey) && readyToJump)
+        if (Input.GetKey(jumpKey))
         {
-            if(onGround){
+            if (onGround && readyToJump)
+            {
                 Jump();
+                readyToJump = false;
                 extraJump = true;
-            } else if (extraJump){
+            }
+            if (onWall && !onGround)
+            {
                 Jump();
+                onWall = false;
+                extraJump = true;
             }
         }
-        readyToJump = false;
         Invoke(nameof(ResetJump), jumpCooldown);
     }
 
@@ -101,11 +107,11 @@ public class PlayerMovement : MonoBehaviour
         moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
 
         // on ground
-        if(onGround)
+        if (onGround)
             rb.AddForce(moveDirection.normalized * speed * 10f, ForceMode.Force);
 
         // in air
-        else if(!onGround)
+        else if (!onGround)
             rb.AddForce(moveDirection.normalized * speed * 10f, ForceMode.Force);
     }
 
@@ -116,9 +122,26 @@ public class PlayerMovement : MonoBehaviour
 
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
     }
+
     private void ResetJump()
     {
         readyToJump = true;
-        extraJump = false;
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Jumpable"))
+        {
+            onWall = true;
+            MyInput();
+        }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Jumpable"))
+        {
+            onWall = false;
+        }
     }
 }
