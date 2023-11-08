@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -28,6 +29,11 @@ public class PlayerMovement : MonoBehaviour
     public bool onWall;
     public LayerMask whatIsGround;
     public float distToGround;
+
+    //Sabastian Edits
+    public GameObject winTextObject;
+    public bool levelCompleted;
+
 
     private Vector3 moveDirection;
     // Start is called before the first frame update
@@ -135,8 +141,12 @@ public class PlayerMovement : MonoBehaviour
             onWall = true;
             MyInput();
         }
+        if (other.gameObject.CompareTag("EndFlag"))
+        {
+            Time.timeScale = 0f;
+            winTextObject.SetActive(true);
+        }
     }
-
     void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Jumpable"))
