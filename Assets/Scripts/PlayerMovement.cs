@@ -46,7 +46,7 @@ public class PlayerMovement : MonoBehaviour
         respawnPoint = new Vector3(transform.position.x, transform.position.y, transform.position.z);
         readyToJump = true;
         extraJump = false;
-        jumpForce = 14.0f;
+        jumpForce = 14f;
         distToGround = GetComponent<Collider>().bounds.extents.y;
     }
 
@@ -89,16 +89,17 @@ public class PlayerMovement : MonoBehaviour
         verticalInput = Input.GetAxisRaw("Vertical");
 
         // when to jump
-        if (Input.GetKey(jumpKey))
+        if (Input.GetKeyDown(jumpKey))
         {
             if (onGround && readyToJump)
             {
+                jumpForce = 14f;
                 Jump();
                 readyToJump = false;
-                extraJump = true;
             }
             if (onWall && !onGround)
             {
+                jumpForce = 14f;
                 Jump();
                 onWall = false;
                 extraJump = true;
