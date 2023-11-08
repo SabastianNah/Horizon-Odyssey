@@ -27,7 +27,8 @@ public class CameraControls : MonoBehaviour
         transform.position = Vector3.Slerp(transform.position, newPosition, smoothFactor);
 
         //rotating camera
-        if (looking){
+        if (looking)
+        {
             transform.LookAt(player);
         }
     }
