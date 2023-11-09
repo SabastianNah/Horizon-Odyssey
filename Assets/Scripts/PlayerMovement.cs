@@ -12,8 +12,7 @@ public class PlayerMovement : MonoBehaviour
 
     public Transform orientation;
 
-    public float speed = 6.0f;
-    public float gravity = 20.0f;
+    public float speed = 10.0f;
     public float groundDrag;
 
     public float horizontalInput;
@@ -21,12 +20,13 @@ public class PlayerMovement : MonoBehaviour
 
     public KeyCode jumpKey = KeyCode.Space;
     public bool readyToJump;
-    public float jumpCooldown;
     public float jumpForce;
     public bool extraJump;
 
     public bool onGround;
     public bool onWall;
+    public bool jumpy;
+
     public LayerMask whatIsGround;
     public float distToGround;
 
@@ -54,7 +54,7 @@ public class PlayerMovement : MonoBehaviour
     private void Update()
     {
         // ground check
-        onGround = Physics.Raycast(transform.position, Vector3.down, distToGround + 0.5f);
+        onGround = Physics.Raycast(transform.position, Vector3.down, distToGround + 0.8f);
 
         MyInput();
         SpeedControl();
@@ -93,19 +93,19 @@ public class PlayerMovement : MonoBehaviour
         {
             if (onGround && readyToJump)
             {
-                jumpForce = 14f;
                 Jump();
                 readyToJump = false;
             }
-            if (onWall && !onGround)
+            else if (onWall && !onGround)
             {
-                jumpForce = 14f;
+                jumpForce = 16f;
                 Jump();
+                jumpForce = 14f;
                 onWall = false;
                 extraJump = true;
             }
         }
-        Invoke(nameof(ResetJump), jumpCooldown);
+        Invoke(nameof(ResetJump), 0);
     }
 
     private void MovePlayer()
@@ -115,19 +115,23 @@ public class PlayerMovement : MonoBehaviour
 
         // on ground
         if (onGround)
-            rb.AddForce(moveDirection.normalized * speed * 10f, ForceMode.Force);
+            rb.AddForce(moveDirection.normalized * speed * 15f, ForceMode.Force);
 
         // in air
         else if (!onGround)
-            rb.AddForce(moveDirection.normalized * speed * 10f, ForceMode.Force);
+            rb.AddForce(moveDirection.normalized * speed * 15f, ForceMode.Force);
     }
 
     private void Jump()
     {
         // reset y velocity
+        if(jumpy){
+            jumpForce = 35f;
+        }
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
 
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+        jumpForce = 14f;
     }
 
     private void ResetJump()
@@ -142,10 +146,19 @@ public class PlayerMovement : MonoBehaviour
             onWall = true;
             MyInput();
         }
-        if (other.gameObject.CompareTag("EndFlag"))
+        else if (other.gameObject.CompareTag("JumpPad")){
+            jumpy = true;
+        }
+        else if (other.gameObject.CompareTag("EndFlag"))
         {
             Time.timeScale = 0f;
             winTextObject.SetActive(true);
+        }
+        else if (other.gameObject.CompareTag("CheckPoint")){
+            respawnPoint = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+        }
+        else if (other.gameObject.CompareTag("Respawn")){
+            transform.position = respawnPoint;
         }
     }
     void OnTriggerExit(Collider other)
@@ -153,6 +166,9 @@ public class PlayerMovement : MonoBehaviour
         if (other.CompareTag("Jumpable"))
         {
             onWall = false;
+        }
+        else if(other.CompareTag("JumpPad")){
+            jumpy = false;
         }
     }
 }
