@@ -126,7 +126,7 @@ public class PlayerMovement : MonoBehaviour
     {
         // reset y velocity
         if(jumpy){
-            jumpForce = 35f;
+            jumpForce = 25f;
         }
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
 

@@ -2,22 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class YSpikeControls : MonoBehaviour
+public class ZObstacleControls : MonoBehaviour
 {
     public float rotateSpeed;
     [SerializeField]
-    float retractSpeed = 3f;
+    float moveSpeed = 3f;
     [SerializeField]
-    float spikeHeight = 1f;
-    Vector3 pos; 
+    float distance = 1f;
+    Vector3 pos;
     private void Start()
     {
         pos = transform.position;
     }
     void Update()
     {
-        float newY = Mathf.Sin(Time.time * retractSpeed) * spikeHeight + pos.y;
-        transform.position = new Vector3(pos.x, newY, pos.z);
+        float newZ = Mathf.Sin(Time.time * moveSpeed) * distance + pos.z;
+        transform.position = new Vector3(pos.x, pos.y, newZ);
         transform.Rotate(new Vector3(0, 30, 0) * (Time.deltaTime * rotateSpeed));
-    }       
+    }
 }
