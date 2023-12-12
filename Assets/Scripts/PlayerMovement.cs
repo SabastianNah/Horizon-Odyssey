@@ -30,6 +30,11 @@ public class PlayerMovement : MonoBehaviour
     public LayerMask whatIsGround;
     public float distToGround;
 
+    //Karan Edits
+    public Animator animator;
+
+    private bool facingRight = true;
+
     //Sabastian Edits
     public GameObject winTextObject;
     public bool levelCompleted;
@@ -53,17 +58,34 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        // ground check
         onGround = Physics.Raycast(transform.position, Vector3.down, distToGround + 0.8f);
-
         MyInput();
         SpeedControl();
 
-        // handle drag
         if (onGround)
+        {
             rb.drag = groundDrag;
+            animator.SetBool("Grounded", true);
+        }
         else
+        {
             rb.drag = 0;
+            animator.SetBool("Grounded", false);
+        }
+
+        if (onWall && !onGround)
+        {
+            animator.SetBool("WallSliding", true);
+        }
+        else
+        {
+            animator.SetBool("WallSliding", false);
+        }
+
+        if ((horizontalInput > 0 && !facingRight) || (horizontalInput < 0 && facingRight))
+        {
+            Flip();
+        }
     }
 
     private void FixedUpdate()
@@ -81,6 +103,7 @@ public class PlayerMovement : MonoBehaviour
             Vector3 limitedVel = flatVel.normalized * speed;
             rb.velocity = new Vector3(limitedVel.x, rb.velocity.y, limitedVel.z);
         }
+        animator.SetFloat("Speed", rb.velocity.magnitude);
     }
 
     private void MyInput()
@@ -132,6 +155,16 @@ public class PlayerMovement : MonoBehaviour
 
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
         jumpForce = 14f;
+
+        animator.SetTrigger("WallJump");
+        StartCoroutine(CancelWallJump());
+    }
+
+    // cancel wall jump animation
+    private IEnumerator CancelWallJump()
+    {
+        yield return new WaitForSeconds(1f);
+        animator.ResetTrigger("WallJump");
     }
 
     private void ResetJump()
@@ -170,5 +203,14 @@ public class PlayerMovement : MonoBehaviour
         else if(other.CompareTag("JumpPad")){
             jumpy = false;
         }
+    }
+
+    // flip character looking direction for animation
+    private void Flip()
+    {
+        facingRight = !facingRight;
+        Vector3 newScale = transform.localScale;
+        newScale.x *= -1;
+        transform.localScale = newScale;
     }
 }
